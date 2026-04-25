@@ -1,7 +1,7 @@
 import { useWatchlist } from '../context/WatchlistContext'
 
-export default function StockCard({ symbol, name, price, change, changePercent }) {
-  const { addStock, stocks } = useWatchlist()
+export default function StockCard({ symbol, name, price, change, changePercent, isWatchlistView }) {
+  const { addStock, removeStock, stocks } = useWatchlist()
   const isPositive = change >= 0
   const isAdded = stocks.some((s) => s.symbol === symbol)
 
@@ -29,17 +29,26 @@ export default function StockCard({ symbol, name, price, change, changePercent }
         </span>
       </div>
 
-      <button
-        onClick={() => addStock({ symbol, name })}
-        disabled={isAdded}
-        className={`w-full py-2 rounded-lg font-medium transition-colors ${
-          isAdded
-            ? 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-            : 'bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer'
-        }`}
-      >
-        {isAdded ? '✓ In Watchlist' : '+ Add to Watchlist'}
-      </button>
+      {isWatchlistView ? (
+        <button
+          onClick={() => removeStock(symbol)}
+          className="w-full py-2 rounded-lg font-medium transition-colors bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 cursor-pointer"
+        >
+          Remove from Watchlist
+        </button>
+      ) : (
+        <button
+          onClick={() => addStock({ symbol, name })}
+          disabled={isAdded}
+          className={`w-full py-2 rounded-lg font-medium transition-colors ${
+            isAdded
+              ? 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+              : 'bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer'
+          }`}
+        >
+          {isAdded ? '✓ In Watchlist' : '+ Add to Watchlist'}
+        </button>
+      )}
     </div>
   )
 }

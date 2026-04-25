@@ -1,10 +1,56 @@
+import { useState, useEffect } from 'react'
 import { useWatchlist } from '../context/WatchlistContext'
+import { getQuote } from '../api/finnhub'
+import StockCard from '../components/StockCard'
+import Spinner from '../components/Spinner'
 
 export default function Watchlist() {
-  const { stocks, removeStock } = useWatchlist()
+  const { stocks } = useWatchlist()
+  const [stockData, setStockData] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    if (stocks.length === 0) {
+      setStockData([])
+      return
+    }
+
+    const fetchQuotes = async (isInitial = false) => {
+      try {
+        if (isInitial) setLoading(true)
+        setError('')
+        const results = await Promise.all(
+          stocks.map(async (stock) => {
+            const res = await getQuote(stock.symbol)
+            return {
+              symbol: stock.symbol,
+              name: stock.name,
+              price: res.data.c,
+              change: res.data.d,
+              changePercent: res.data.dp,
+            }
+          })
+        )
+        setStockData(results)
+      } catch (err) {
+        setError('Failed to load live data for watchlist.')
+      } finally {
+        if (isInitial) setLoading(false)
+      }
+    }
+
+    fetchQuotes(true)
+
+    const intervalId = setInterval(() => {
+      fetchQuotes(false)
+    }, 30000)
+
+    return () => clearInterval(intervalId)
+  }, [stocks])
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
         My Watchlist
       </h1>
@@ -20,26 +66,27 @@ export default function Watchlist() {
           </p>
         </div>
       ) : (
-        <div className="flex flex-col gap-3">
-          {stocks.map((stock) => (
-            <div
-              key={stock.symbol}
-              className="flex items-center justify-between bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm px-5 py-4 hover:shadow-md transition-shadow"
-            >
-              <div>
-                <p className="font-bold text-gray-900 dark:text-white">{stock.symbol}</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{stock.name}</p>
-              </div>
-              <button
-                onClick={() => removeStock(stock.symbol)}
-                className="px-4 py-2 rounded-lg text-sm font-medium bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 transition-colors cursor-pointer"
-              >
-                Remove
-              </button>
+        <>
+          {loading && <Spinner />}
+          {error && <p className="text-red-500 mb-4">{error}</p>}
+          {!loading && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {stockData.map((stock) => (
+                <StockCard
+                  key={stock.symbol}
+                  symbol={stock.symbol}
+                  name={stock.name}
+                  price={stock.price}
+                  change={stock.change}
+                  changePercent={stock.changePercent}
+                  isWatchlistView={true}
+                />
+              ))}
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
     </div>
   )
 }
+

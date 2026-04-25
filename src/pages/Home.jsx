@@ -20,9 +20,9 @@ export default function Home() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    const fetchQuotes = async () => {
+    const fetchQuotes = async (isInitial = false) => {
       try {
-        setLoading(true)
+        if (isInitial) setLoading(true)
         setError('')
         const results = await Promise.all(
           STOCKS.map(async (stock) => {
@@ -40,11 +40,17 @@ export default function Home() {
       } catch (err) {
         setError('Failed to load stock data. Please try again later.')
       } finally {
-        setLoading(false)
+        if (isInitial) setLoading(false)
       }
     }
 
-    fetchQuotes()
+    fetchQuotes(true) // Initial fetch
+
+    const intervalId = setInterval(() => {
+      fetchQuotes(false) // Background refresh
+    }, 30000)
+
+    return () => clearInterval(intervalId)
   }, [])
 
   if (loading) return <Spinner />

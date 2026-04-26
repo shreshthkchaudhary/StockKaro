@@ -24,7 +24,7 @@ export default function Navbar() {
 
   return (
     <nav className="bg-white dark:bg-gray-900 shadow-md border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50">
-      <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div className="mx-auto px-4 py-3 flex items-center justify-between">
         <Link to="/" className="text-xl font-bold text-indigo-600 dark:text-indigo-400">
           📈 StockKaro
         </Link>

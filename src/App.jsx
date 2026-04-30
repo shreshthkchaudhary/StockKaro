@@ -6,6 +6,7 @@ import Spinner from './components/Spinner'
 const Home = lazy(() => import('./pages/Home'))
 const Search = lazy(() => import('./pages/Search'))
 const Watchlist = lazy(() => import('./pages/Watchlist'))
+const StockDetails = lazy(() => import('./pages/StockDetails'))
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/search" element={<Search />} />
             <Route path="/watchlist" element={<Watchlist />} />
+            <Route path="/stock/:symbol" element={<StockDetails />} />
           </Routes>
         </Suspense>
       </main>

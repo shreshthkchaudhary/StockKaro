@@ -1,12 +1,17 @@
 import { useWatchlist } from '../context/WatchlistContext'
+import { useNavigate } from 'react-router-dom'
 
 export default function StockCard({ symbol, name, price, change, changePercent, isWatchlistView }) {
   const { addStock, removeStock, stocks } = useWatchlist()
+  const navigate = useNavigate()
   const isPositive = change >= 0
   const isAdded = stocks.some((s) => s.symbol === symbol)
 
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-md p-5 flex flex-col gap-3 hover:shadow-lg transition-shadow">
+    <div 
+      onClick={() => navigate(`/stock/${symbol}`)}
+      className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-md p-5 flex flex-col gap-3 hover:shadow-lg hover:border-indigo-500 dark:hover:border-indigo-500 transition-all cursor-pointer"
+    >
       <div className="flex items-center justify-between">
         <span className="text-lg font-bold text-gray-900 dark:text-white">{symbol}</span>
         <span className={`text-sm font-semibold px-2 py-1 rounded-full ${
@@ -31,14 +36,20 @@ export default function StockCard({ symbol, name, price, change, changePercent, 
 
       {isWatchlistView ? (
         <button
-          onClick={() => removeStock(symbol)}
+          onClick={(e) => {
+            e.stopPropagation()
+            removeStock(symbol)
+          }}
           className="w-full py-2 rounded-lg font-medium transition-colors bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 cursor-pointer"
         >
           Remove from Watchlist
         </button>
       ) : (
         <button
-          onClick={() => addStock({ symbol, name })}
+          onClick={(e) => {
+            e.stopPropagation()
+            addStock({ symbol, name })
+          }}
           disabled={isAdded}
           className={`w-full py-2 rounded-lg font-medium transition-colors ${
             isAdded

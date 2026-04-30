@@ -22,13 +22,24 @@ export default function Watchlist() {
         setError('')
         const results = await Promise.all(
           stocks.map(async (stock) => {
-            const res = await getQuote(stock.symbol)
-            return {
-              symbol: stock.symbol,
-              name: stock.name,
-              price: res.data.c,
-              change: res.data.d,
-              changePercent: res.data.dp,
+            try {
+              const res = await getQuote(stock.symbol)
+              return {
+                symbol: stock.symbol,
+                name: stock.name,
+                price: res.data.c || 0,
+                change: res.data.d || 0,
+                changePercent: res.data.dp || 0,
+              }
+            } catch (err) {
+              console.error(`Failed to fetch quote for ${stock.symbol}:`, err)
+              return {
+                symbol: stock.symbol,
+                name: stock.name,
+                price: 0,
+                change: 0,
+                changePercent: 0,
+              }
             }
           })
         )
